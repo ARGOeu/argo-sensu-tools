@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from argo_sensu_tools.passive2event import Passive2Event
+from argo_sensu_tools.events import PassiveEvents
 
 PASSIVE_DATA = """
 [1698053882] PROCESS_SERVICE_CHECK_RESULT;grid02.hep.by;eu.egi.SRM-VOLsDir-ops;0;OK - Directory successfully listed\n
@@ -73,7 +73,7 @@ class Passive2EventTests(unittest.TestCase):
         with open(PASSIVE_FILE_NAME, "w") as f:
             f.write(PASSIVE_DATA)
 
-        self.passive2event = Passive2Event(
+        self.events = PassiveEvents(
             filename=PASSIVE_FILE_NAME,
             metricprofiles=METRICPROFILES,
             voname="ops",
@@ -85,7 +85,7 @@ class Passive2EventTests(unittest.TestCase):
             os.remove(PASSIVE_FILE_NAME)
 
     def test_parse_file(self):
-        parsed_data = self.passive2event._parse()
+        parsed_data = self.events._parse()
         self.assertEqual(
             parsed_data, [
                 {
@@ -118,7 +118,7 @@ class Passive2EventTests(unittest.TestCase):
         )
 
     def test_create_event(self):
-        event = self.passive2event._create_event({
+        event = self.events._create_event({
             "hostname": "grid02.hep.by",
             "metric": "eu.egi.SRM-VOPut-ops",
             "status": 0,

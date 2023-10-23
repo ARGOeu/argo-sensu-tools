@@ -1,4 +1,4 @@
-class Passive2Event:
+class PassiveEvents:
     def __init__(self, filename, metricprofiles, voname, namespace):
         self.filename = filename
         self.metricprofiles = metricprofiles
