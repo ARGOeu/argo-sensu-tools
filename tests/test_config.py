@@ -5,6 +5,9 @@ from argo_sensu_tools.config import Config
 from argo_sensu_tools.exceptions import ConfigException
 
 CONFIG = """
+[GENERAL]\n
+socket = /var/nagios/rw/nagios.cmd\n
+\n
 [SENSU]\n
 url = https://sensu-devel.cro-ngi.hr:8080\n
 token = t0k3n\n
@@ -43,6 +46,9 @@ class ConfigTests(unittest.TestCase):
 
         if os.path.isfile(FAULTY_CONFIG_FILE):
             os.remove(FAULTY_CONFIG_FILE)
+
+    def test_get_socket(self):
+        self.assertEqual(self.config.get_socket(), "/var/nagios/rw/nagios.cmd")
 
     def test_get_sensu_url(self):
         self.assertEqual(
