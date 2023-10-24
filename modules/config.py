@@ -39,6 +39,9 @@ class Config:
     def get_sensu_token(self):
         return self._read_entry("SENSU", "token")
 
+    def get_namespace(self):
+        return self._read_entry("SENSU", "namespace")
+
     def get_webapi_url(self):
         return self._remove_trailing_slash(self._read_entry("WEB-API", "url"))
 

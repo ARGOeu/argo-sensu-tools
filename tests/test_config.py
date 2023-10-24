@@ -8,6 +8,7 @@ CONFIG = """
 [SENSU]\n
 url = https://sensu-devel.cro-ngi.hr:8080\n
 token = t0k3n\n
+namespace = TENANT\n
 \n
 [WEB-API]\n
 url = https://api.devel.argo.grnet.gr\n
@@ -57,17 +58,11 @@ class ConfigTests(unittest.TestCase):
             "Configuration error: No section: 'SENSU'"
         )
 
-    def test_get_webapi_token_missing_option(self):
-        with self.assertRaises(ConfigException) as context:
-            self.faulty_config.get_webapi_token()
-
-        self.assertEqual(
-            context.exception.__str__(),
-            "Configuration error: No option 'token' in section: 'WEB-API'"
-        )
-
     def test_get_sensu_token(self):
         self.assertEqual(self.config.get_sensu_token(), "t0k3n")
+
+    def test_get_namespace(self):
+        self.assertEqual(self.config.get_namespace(), "TENANT")
 
     def test_get_webapi_url(self):
         self.assertEqual(
@@ -76,6 +71,15 @@ class ConfigTests(unittest.TestCase):
 
     def test_get_webapi_token(self):
         self.assertEqual(self.config.get_webapi_token(), "w3b-4p1-t0k3n")
+
+    def test_get_webapi_token_missing_option(self):
+        with self.assertRaises(ConfigException) as context:
+            self.faulty_config.get_webapi_token()
+
+        self.assertEqual(
+            context.exception.__str__(),
+            "Configuration error: No option 'token' in section: 'WEB-API'"
+        )
 
     def test_get_metricprofiles(self):
         self.assertEqual(
