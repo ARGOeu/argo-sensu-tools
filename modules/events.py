@@ -1,25 +1,18 @@
 class PassiveEvents:
-    def __init__(self, filename, metricprofiles, voname, namespace):
-        self.filename = filename
+    def __init__(self, message, metricprofiles, voname, namespace):
+        self.message = message
         self.metricprofiles = metricprofiles
         self.voname = voname
         self.namespace = namespace
 
     def _parse(self):
-        with open(self.filename, "r") as f:
-            lines = f.readlines()
-
-        lines = [line for line in lines if line.strip()]
-
-        data = list()
-        for line in lines:
-            line = line.split(";")
-            data.append({
-                "hostname": line[1],
-                "metric": line[2],
-                "status": int(line[3]),
-                "output": line[4].strip()
-            })
+        message = self.message.split(";")
+        data = {
+            "hostname": message[1],
+            "metric": message[2],
+            "status": int(message[3]),
+            "output": message[4].strip()
+        }
 
         return data
 
@@ -41,7 +34,8 @@ class PassiveEvents:
 
         return sorted(list(servicetypes))
 
-    def _create_event(self, item):
+    def create_event(self):
+        item = self._parse()
         servicetypes = self._servicetypes4metric(item["metric"])
 
         events = list()
