@@ -7,6 +7,7 @@ from argo_sensu_tools.exceptions import ConfigException
 CONFIG = """
 [GENERAL]\n
 socket = /var/nagios/rw/nagios.cmd\n
+voname = ops\n
 \n
 [SENSU]\n
 url = https://sensu-devel.cro-ngi.hr:8080\n
@@ -49,6 +50,9 @@ class ConfigTests(unittest.TestCase):
 
     def test_get_socket(self):
         self.assertEqual(self.config.get_socket(), "/var/nagios/rw/nagios.cmd")
+
+    def test_get_voname(self):
+        self.assertEqual(self.config.get_voname(), "ops")
 
     def test_get_sensu_url(self):
         self.assertEqual(

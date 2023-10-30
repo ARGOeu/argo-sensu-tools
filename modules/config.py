@@ -36,6 +36,9 @@ class Config:
     def get_socket(self):
         return self._read_entry("GENERAL", "socket")
 
+    def get_voname(self):
+        return self._read_entry("GENERAL", "voname")
+
     def get_sensu_url(self):
         return self._remove_trailing_slash(self._read_entry("SENSU", "url"))
 
