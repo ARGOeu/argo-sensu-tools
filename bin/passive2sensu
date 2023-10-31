@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+import os
+
+from argo_sensu_tools.config import Config
+from argo_sensu_tools.data import WebAPI
+from argo_sensu_tools.exceptions import ConfigException, SensuException, \
+    WebAPIException
+from argo_sensu_tools.run import SocketListen
+
+CONFFILE = "/etc/argo-sensu-tools/argo-sensu-tools.conf"
+
+
+def main():
+    try:
+        config = Config(config_file=CONFFILE)
+
+        socket_path = config.get_socket()
+
+        webapi = WebAPI(
+            url=config.get_webapi_url(),
+            token=config.get_webapi_token(),
+            metricprofiles=config.get_metricprofiles()
+        )
+
+        try:
+            os.unlink(socket_path)
+
+        except OSError:
+            if os.path.exists(socket_path):
+                raise
+
+        service = SocketListen(
+            socket_path=socket_path,
+            metricprofiles=webapi.get_metricprofiles(),
+            sensu_url=config.get_sensu_url(),
+            sensu_token=config.get_sensu_token(),
+            voname=config.get_voname(),
+            namespace=config.get_namespace()
+        )
+
+        service.run_server()
+
+    except (ConfigException, SensuException, WebAPIException) as e:
+        print(e)
+
+
+main()
