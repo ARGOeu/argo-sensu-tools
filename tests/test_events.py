@@ -96,13 +96,7 @@ class Passive2EventTests(unittest.TestCase):
                 "status": 0,
                 "metadata": {
                     "name": "eu.egi.SRM-VOLsDir"
-                }
-            },
-            "pipelines": [
-                {
-                    "name": "hard_state",
-                    "type": "Pipeline",
-                    "api_version": "core/v2"
-                }
-            ]
+                },
+                "handlers": ["publisher-handler"]
+            }
         }])
