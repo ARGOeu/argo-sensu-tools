@@ -3,9 +3,7 @@ import os
 import sys
 
 from argo_sensu_tools.config import Config
-from argo_sensu_tools.data import WebAPI
-from argo_sensu_tools.exceptions import ConfigException, SensuException, \
-    WebAPIException
+from argo_sensu_tools.exceptions import ConfigException
 from argo_sensu_tools.log import get_logger
 from argo_sensu_tools.run import SocketListen
 
@@ -29,12 +27,6 @@ def main():
 
         logger.info(f"Configuration file {CONFFILE} read successfully")
 
-        webapi = WebAPI(
-            url=webapi_url,
-            token=webapi_token,
-            metricprofiles=list_metricprofiles
-        )
-
         try:
             os.unlink(socket_path)
 
@@ -45,7 +37,9 @@ def main():
 
         service = SocketListen(
             socket_path=socket_path,
-            metricprofiles=webapi.get_metricprofiles(),
+            webapi_url=webapi_url,
+            webapi_token=webapi_token,
+            metricprofiles=list_metricprofiles,
             sensu_url=sensu_url,
             sensu_token=sensu_token,
             voname=voname,
@@ -54,7 +48,9 @@ def main():
 
         service.run_server()
 
-    except (ConfigException, SensuException, WebAPIException) as e:
+        logger.info(f"Started listening to socket {socket_path}...")
+
+    except ConfigException as e:
         logger.error(str(e))
 
 
