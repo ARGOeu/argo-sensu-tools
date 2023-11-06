@@ -1,9 +1,17 @@
 import json
+import logging
 import unittest
 from unittest import mock
 
-from argo_sensu_tools.exceptions import SensuException
 from argo_sensu_tools.sensu import Sensu
+
+LOGNAME = "argo-sensu-tools.sensu"
+DUMMY_LOGGER = logging.getLogger(LOGNAME)
+DUMMY_LOG = [f"INFO:{LOGNAME}:dummy"]
+
+
+def _log_dummy():
+    DUMMY_LOGGER.info("dummy")
 
 
 class MockResponse:
@@ -58,7 +66,8 @@ class SensuTests(unittest.TestCase):
     @mock.patch("argo_sensu_tools.sensu.requests.post")
     def test_send_event(self, mock_post):
         mock_post.return_value = MockResponse(status_code=201)
-        self.sensu.send_event(event=self.event)
+        with self.assertLogs(LOGNAME) as log:
+            self.sensu.send_event(event=self.event)
         mock_post.assert_called_once_with(
             "https://sensu-devel.cro-ngi.hr:8080/api/core/v2/namespaces/"
             "TENANT/events",
@@ -68,11 +77,15 @@ class SensuTests(unittest.TestCase):
                 "Content-Type": "application/json"
             }
         )
+        self.assertEqual(log.output, [
+            f"INFO:{LOGNAME}:Sensu: Successfully sent event "
+            f"SRM__grid02.hep.by/eu.egi.SRM-VOPut"
+        ])
 
     @mock.patch("argo_sensu_tools.sensu.requests.post")
     def test_send_event_with_error(self, mock_post):
         mock_post.return_value = MockResponse(status_code=400)
-        with self.assertRaises(SensuException) as context:
+        with self.assertLogs(LOGNAME) as log:
             self.sensu.send_event(self.event)
 
         mock_post.assert_called_once_with(
@@ -86,6 +99,8 @@ class SensuTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            context.exception.__str__(),
-            "Sensu error: 400 Bad Request"
+            log.output, [
+                f"ERROR:{LOGNAME}:Sensu: Error sending event "
+                f"SRM__grid02.hep.by/eu.egi.SRM-VOPut: 400 Bad Request"
+            ]
         )

@@ -1,7 +1,7 @@
 import json
+import logging
 
 import requests
-from argo_sensu_tools.exceptions import SensuException
 
 
 class Sensu:
@@ -9,6 +9,7 @@ class Sensu:
         self.url = url
         self.token = token
         self.namespace = namespace
+        self.logger = logging.getLogger("argo-sensu-tools.sensu")
 
     def send_event(self, event):
         response = requests.post(
@@ -21,4 +22,16 @@ class Sensu:
         )
 
         if not response.ok:
-            raise SensuException(f"{response.status_code} {response.reason}")
+            self.logger.error(
+                f"Sensu: Error sending event "
+                f"{event['entity']['metadata']['name']}/"
+                f"{event['check']['metadata']['name']}: "
+                f"{response.status_code} {response.reason}"
+            )
+
+        else:
+            self.logger.info(
+                f"Sensu: Successfully sent event "
+                f"{event['entity']['metadata']['name']}/"
+                f"{event['check']['metadata']['name']}"
+            )
