@@ -1,23 +1,30 @@
+import logging
 import os
 import socket
 import threading
 
+from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
-from argo_sensu_tools.exceptions import SensuException
+from argo_sensu_tools.exceptions import WebAPIException
 from argo_sensu_tools.sensu import Sensu
 
 
 class SocketListen:
     def __init__(
-            self, socket_path, metricprofiles, sensu_url, sensu_token,
-            voname, namespace
+            self, socket_path, webapi_url, webapi_token, metricprofiles,
+            sensu_url, sensu_token, voname, namespace
     ):
+        self.logger = logging.getLogger("argo-sensu-tools.run")
         self.socket_path = socket_path
-        self.metricprofiles = metricprofiles
         self.sensu = Sensu(
             url=sensu_url,
             token=sensu_token,
             namespace=namespace
+        )
+        self.webapi = WebAPI(
+            url=webapi_url,
+            token=webapi_token,
+            metricprofiles=metricprofiles
         )
         self.voname = voname
         self.namespace = namespace
@@ -28,24 +35,26 @@ class SocketListen:
                 data = connection.recv(1024).decode("utf-8")
 
                 if data:
-                    passives = PassiveEvents(
-                        message=data,
-                        metricprofiles=self.metricprofiles,
-                        voname=self.voname,
-                        namespace=self.namespace,
-                    )
+                    try:
+                        passives = PassiveEvents(
+                            message=data,
+                            metricprofiles=self.webapi.get_metricprofiles(),
+                            voname=self.voname,
+                            namespace=self.namespace,
+                        )
 
-                    for event in passives.create_event():
-                        self.sensu.send_event(event=event)
+                        for event in passives.create_event():
+                            self.sensu.send_event(event=event)
+
+                    except WebAPIException as e:
+                        self.logger.error(str(e))
 
                 else:
                     break
 
         except Exception as e:
-            print(f"Error handling client: {e}")
-
-        except SensuException as e:
-            print(f"Error sending event to Sensu backend: {e}")
+            self.logger.error(f"Error handling client: {e}")
+            connection.close()
 
         finally:
             connection.close()
@@ -66,7 +75,8 @@ class SocketListen:
                 thread.start()
 
         except Exception as e:
-            print(f"Error: {e}")
+            self.logger.error(str(e))
+            server.close()
 
         finally:
             server.close()
