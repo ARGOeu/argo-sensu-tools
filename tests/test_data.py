@@ -2,8 +2,8 @@ import json
 import unittest
 from unittest import mock
 
-from argo_sensu_tools.exceptions import WebAPIException
 from argo_sensu_tools.data import WebAPI
+from argo_sensu_tools.exceptions import WebAPIException
 
 METRICPROFILES = [
     {
@@ -242,7 +242,7 @@ class WebAPITests(unittest.TestCase):
         )
         self.assertEqual(
             context.exception.__str__(),
-            "Web-API error: 401 Unauthorized: You need to provide a correct "
+            "Web-API: 401 Unauthorized: You need to provide a correct "
             "authentication token using the header 'x-api-key'"
         )
 
@@ -259,5 +259,5 @@ class WebAPITests(unittest.TestCase):
             }
         )
         self.assertEqual(
-            context.exception.__str__(), "Web-API error: 500 SERVER ERROR"
+            context.exception.__str__(), "Web-API: 500 SERVER ERROR"
         )
