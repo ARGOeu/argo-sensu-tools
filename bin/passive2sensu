@@ -1,25 +1,38 @@
 #!/usr/bin/python3
 import os
+import sys
 
 from argo_sensu_tools.config import Config
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.exceptions import ConfigException, SensuException, \
     WebAPIException
+from argo_sensu_tools.log import get_logger
 from argo_sensu_tools.run import SocketListen
 
 CONFFILE = "/etc/argo-sensu-tools/argo-sensu-tools.conf"
+LOGFILE = "/var/log/argo-sensu-tools/argo-sensu-tools.log"
 
 
 def main():
+    logger = get_logger(filename=LOGFILE)
     try:
         config = Config(config_file=CONFFILE)
 
+        webapi_url = config.get_webapi_url()
+        webapi_token = config.get_webapi_token()
+        list_metricprofiles = config.get_metricprofiles()
+        sensu_url = config.get_sensu_url()
+        sensu_token = config.get_sensu_token()
+        voname = config.get_voname()
+        namespace = config.get_namespace()
         socket_path = config.get_socket()
 
+        logger.info(f"Configuration file {CONFFILE} read successfully")
+
         webapi = WebAPI(
-            url=config.get_webapi_url(),
-            token=config.get_webapi_token(),
-            metricprofiles=config.get_metricprofiles()
+            url=webapi_url,
+            token=webapi_token,
+            metricprofiles=list_metricprofiles
         )
 
         try:
@@ -27,21 +40,22 @@ def main():
 
         except OSError:
             if os.path.exists(socket_path):
-                raise
+                logger.error(f"Error unlinking socket {socket_path}")
+                sys.exit(2)
 
         service = SocketListen(
             socket_path=socket_path,
             metricprofiles=webapi.get_metricprofiles(),
-            sensu_url=config.get_sensu_url(),
-            sensu_token=config.get_sensu_token(),
-            voname=config.get_voname(),
-            namespace=config.get_namespace()
+            sensu_url=sensu_url,
+            sensu_token=sensu_token,
+            voname=voname,
+            namespace=namespace
         )
 
         service.run_server()
 
     except (ConfigException, SensuException, WebAPIException) as e:
-        print(e)
+        logger.error(str(e))
 
 
 main()
