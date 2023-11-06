@@ -14,8 +14,3 @@ class ConfigException(ArgoSensuToolsException):
 class WebAPIException(ArgoSensuToolsException):
     def __str__(self):
         return f"Web-API: {str(self.msg)}"
-
-
-class SensuException(ArgoSensuToolsException):
-    def __str__(self):
-        return f"Sensu error: {str(self.msg)}"
