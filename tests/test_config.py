@@ -6,7 +6,7 @@ from argo_sensu_tools.exceptions import ConfigException
 
 CONFIG = """
 [GENERAL]\n
-socket = /var/nagios/rw/nagios.cmd\n
+fifo = /var/nagios/rw/nagios.cmd\n
 voname = ops\n
 \n
 [SENSU]\n
@@ -48,8 +48,8 @@ class ConfigTests(unittest.TestCase):
         if os.path.isfile(FAULTY_CONFIG_FILE):
             os.remove(FAULTY_CONFIG_FILE)
 
-    def test_get_socket(self):
-        self.assertEqual(self.config.get_socket(), "/var/nagios/rw/nagios.cmd")
+    def test_get_fifo(self):
+        self.assertEqual(self.config.get_fifo(), "/var/nagios/rw/nagios.cmd")
 
     def test_get_voname(self):
         self.assertEqual(self.config.get_voname(), "ops")

@@ -33,8 +33,8 @@ class Config:
         except (configparser.NoSectionError, configparser.NoOptionError) as e:
             raise ConfigException(e)
 
-    def get_socket(self):
-        return self._read_entry("GENERAL", "socket")
+    def get_fifo(self):
+        return self._read_entry("GENERAL", "fifo")
 
     def get_voname(self):
         return self._read_entry("GENERAL", "voname")
