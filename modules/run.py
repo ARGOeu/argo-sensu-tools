@@ -1,5 +1,7 @@
+import grp
 import logging
 import os
+import pwd
 import socket
 import threading
 
@@ -28,6 +30,7 @@ class SocketListen:
         )
         self.voname = voname
         self.namespace = namespace
+        self.user = "sensu"
 
     def _handle_client(self, connection):
         try:
@@ -64,15 +67,39 @@ class SocketListen:
         try:
             server.bind(self.socket_path)
             os.chmod(self.socket_path, 0o777)
-            server.listen()
+            try:
+                uid = pwd.getpwnam(self.user).pw_uid
 
-            while True:
-                connection, client_address = server.accept()
-
-                thread = threading.Thread(
-                    target=self._handle_client, args=(connection,)
+            except KeyError:
+                self.logger.error(
+                    f"Unable to change ownership on socket {self.socket_path}: "
+                    f"no user named {self.user}"
                 )
-                thread.start()
+                server.close()
+
+            else:
+                try:
+                    gid = grp.getgrnam(self.user).gr_gid
+
+                except KeyError:
+                    self.logger.error(
+                        f"Unable to change group ownership on socket "
+                        f"{self.socket_path}: no group named {self.user}"
+                    )
+                    server.close()
+
+                else:
+                    os.chown(self.socket_path, uid, gid)
+
+                    server.listen()
+
+                    while True:
+                        connection, client_address = server.accept()
+
+                        thread = threading.Thread(
+                            target=self._handle_client, args=(connection,)
+                        )
+                        thread.start()
 
         except Exception as e:
             self.logger.error(str(e))
