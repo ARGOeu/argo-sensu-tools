@@ -25,8 +25,6 @@ def main():
         namespace = config.get_namespace()
         socket_path = config.get_socket()
 
-        logger.info(f"Configuration file {CONFFILE} read successfully")
-
         try:
             os.unlink(socket_path)
 
@@ -47,8 +45,6 @@ def main():
         )
 
         service.run_server()
-
-        logger.info(f"Started listening to socket {socket_path}...")
 
     except ConfigException as e:
         logger.error(str(e))
