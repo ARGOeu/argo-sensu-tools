@@ -1,9 +1,6 @@
-import grp
 import logging
 import os
-import pwd
-import socket
-import threading
+import stat
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
@@ -11,13 +8,13 @@ from argo_sensu_tools.exceptions import WebAPIException
 from argo_sensu_tools.sensu import Sensu
 
 
-class SocketListen:
+class FIFO:
     def __init__(
-            self, socket_path, webapi_url, webapi_token, metricprofiles,
+            self, fifo_path, webapi_url, webapi_token, metricprofiles,
             sensu_url, sensu_token, voname, namespace
     ):
         self.logger = logging.getLogger("argo-sensu-tools.run")
-        self.socket_path = socket_path
+        self.fifo_path = fifo_path
         self.sensu = Sensu(
             url=sensu_url,
             token=sensu_token,
@@ -32,10 +29,25 @@ class SocketListen:
         self.namespace = namespace
         self.user = "sensu"
 
-    def _handle_client(self, connection):
+    def _create(self):
         try:
+            if not os.path.exists(self.fifo_path):
+                os.mkfifo(self.fifo_path)
+
+            else:
+                if not stat.S_ISFIFO(os.stat(self.fifo_path).st_mode):
+                    os.remove(self.fifo_path)
+                    os.mkfifo(self.fifo_path)
+
+        except OSError as e:
+            self.logger.error(f"Error creating FIFO: {str(e)}")
+
+    def read(self):
+        self._create()
+
+        with open(self.fifo_path) as f:
             while True:
-                data = connection.recv(1024).decode("utf-8")
+                data = f.read()
 
                 if data:
                     try:
@@ -43,7 +55,7 @@ class SocketListen:
                             message=data,
                             metricprofiles=self.webapi.get_metricprofiles(),
                             voname=self.voname,
-                            namespace=self.namespace,
+                            namespace=self.namespace
                         )
 
                         for event in passives.create_event():
@@ -51,59 +63,4 @@ class SocketListen:
 
                     except WebAPIException as e:
                         self.logger.error(str(e))
-
-                else:
-                    break
-
-        except Exception as e:
-            self.logger.error(f"Error handling client: {e}")
-            connection.close()
-
-        finally:
-            connection.close()
-
-    def run_server(self):
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        try:
-            server.bind(self.socket_path)
-            os.chmod(self.socket_path, 0o777)
-            try:
-                uid = pwd.getpwnam(self.user).pw_uid
-
-            except KeyError:
-                self.logger.error(
-                    f"Unable to change ownership on socket {self.socket_path}: "
-                    f"no user named {self.user}"
-                )
-                server.close()
-
-            else:
-                try:
-                    gid = grp.getgrnam(self.user).gr_gid
-
-                except KeyError:
-                    self.logger.error(
-                        f"Unable to change group ownership on socket "
-                        f"{self.socket_path}: no group named {self.user}"
-                    )
-                    server.close()
-
-                else:
-                    os.chown(self.socket_path, uid, gid)
-
-                    server.listen()
-
-                    while True:
-                        connection, client_address = server.accept()
-
-                        thread = threading.Thread(
-                            target=self._handle_client, args=(connection,)
-                        )
-                        thread.start()
-
-        except Exception as e:
-            self.logger.error(str(e))
-            server.close()
-
-        finally:
-            server.close()
+                        break
