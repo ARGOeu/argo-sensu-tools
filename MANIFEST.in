@@ -1,0 +1,8 @@
+include config/*
+include bin/*
+include modules/*
+include init/passive2sensu.service
+include argo-sensu-tools.spec
+include setup.py
+
+recursive exclude *.pyc *.pyo
