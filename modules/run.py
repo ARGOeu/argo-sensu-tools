@@ -88,6 +88,9 @@ class FIFO:
 
                     except WebAPIException as e:
                         self.logger.error(str(e))
+                        self.logger.warning(
+                            f"Event {data.strip()} not processed"
+                        )
                         continue
 
             self._clean()
