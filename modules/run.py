@@ -1,11 +1,24 @@
 import logging
 import os
+import signal
 import stat
+import sys
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
 from argo_sensu_tools.exceptions import WebAPIException
 from argo_sensu_tools.sensu import Sensu
+
+
+class GracefulKiller:
+    kill_now = False
+
+    def __init__(self):
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
+    def exit_gracefully(self, *args):
+        self.kill_now = True
 
 
 class FIFO:
@@ -42,11 +55,23 @@ class FIFO:
         except OSError as e:
             self.logger.error(f"Error creating FIFO: {str(e)}")
 
+    def _clean(self):
+        try:
+            os.remove(self.fifo_path)
+            self.logger.info("Exiting...")
+            sys.exit(0)
+
+        except OSError as e:
+            self.logger.error(f"Error removing FIFO: {str(e)}")
+            sys.exit(2)
+
     def read(self):
         self._create()
 
+        killer = GracefulKiller()
+
         with open(self.fifo_path) as f:
-            while True:
+            while not killer.kill_now:
                 data = f.read()
 
                 if data:
@@ -63,4 +88,9 @@ class FIFO:
 
                     except WebAPIException as e:
                         self.logger.error(str(e))
-                        break
+                        self.logger.warning(
+                            f"Event {data.strip()} not processed"
+                        )
+                        continue
+
+            self._clean()
