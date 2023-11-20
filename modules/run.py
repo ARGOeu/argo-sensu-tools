@@ -72,12 +72,12 @@ class FIFO:
 
         with open(self.fifo_path) as f:
             while not killer.kill_now:
-                data = f.read()
+                line = f.readline(1024)
 
-                if data:
+                if line:
                     try:
                         passives = PassiveEvents(
-                            message=data,
+                            message=line,
                             metricprofiles=self.webapi.get_metricprofiles(),
                             voname=self.voname,
                             namespace=self.namespace
@@ -89,7 +89,7 @@ class FIFO:
                     except WebAPIException as e:
                         self.logger.error(str(e))
                         self.logger.warning(
-                            f"Event {data.strip()} not processed"
+                            f"Event {line.strip()} not processed"
                         )
                         continue
 
