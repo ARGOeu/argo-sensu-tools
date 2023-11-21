@@ -1,9 +1,14 @@
 import unittest
 
 from argo_sensu_tools.events import PassiveEvents
+from argo_sensu_tools.exceptions import ArgoSensuToolsException
 
 PASSIVE_DATA = """
 [1698053882] PROCESS_SERVICE_CHECK_RESULT;grid02.hep.by;eu.egi.SRM-VOLsDir-ops;0;OK - Directory successfully listed\n
+"""
+
+WRONG_PASSIVE_DATA = """
+[1698053882] PROCESS_SERVICE_CHECK_RESULT;grid02
 """
 
 METRICPROFILES = [
@@ -70,7 +75,7 @@ class Passive2EventTests(unittest.TestCase):
             namespace="TEST"
         )
 
-    def test_parse_file(self):
+    def test_parse(self):
         parsed_data = self.events._parse()
         self.assertEqual(
             parsed_data, {
@@ -79,6 +84,21 @@ class Passive2EventTests(unittest.TestCase):
                 "status": 0,
                 "output": "OK - Directory successfully listed"
             }
+        )
+
+    def test_parse_with_error(self):
+        events = PassiveEvents(
+            message=WRONG_PASSIVE_DATA,
+            metricprofiles=METRICPROFILES,
+            voname="ops",
+            namespace="TEST"
+        )
+        with self.assertRaises(ArgoSensuToolsException) as context:
+            events._parse()
+        self.assertEqual(
+            context.exception.__str__(),
+            "Error parsing message '[1698053882] PROCESS_SERVICE_CHECK_RESULT;"
+            "grid02'"
         )
 
     def test_create_event(self):

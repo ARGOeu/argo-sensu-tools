@@ -1,3 +1,6 @@
+from argo_sensu_tools.exceptions import ArgoSensuToolsException
+
+
 class PassiveEvents:
     def __init__(self, message, metricprofiles, voname, namespace):
         self.message = message
@@ -6,15 +9,21 @@ class PassiveEvents:
         self.namespace = namespace
 
     def _parse(self):
-        message = self.message.split(";")
-        data = {
-            "hostname": message[1],
-            "metric": message[2],
-            "status": int(message[3]),
-            "output": message[4].strip()
-        }
+        try:
+            message = self.message.split(";")
+            data = {
+                "hostname": message[1],
+                "metric": message[2],
+                "status": int(message[3]),
+                "output": message[4].strip()
+            }
 
-        return data
+            return data
+
+        except IndexError:
+            raise ArgoSensuToolsException(
+                f"Error parsing message '{self.message.strip()}'"
+            )
 
     def _metric_name(self, metric):
         if metric.endswith(f"-{self.voname}"):

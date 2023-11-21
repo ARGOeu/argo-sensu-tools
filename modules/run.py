@@ -6,7 +6,7 @@ import sys
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
-from argo_sensu_tools.exceptions import WebAPIException
+from argo_sensu_tools.exceptions import WebAPIException, ArgoSensuToolsException
 from argo_sensu_tools.sensu import Sensu
 
 
@@ -86,7 +86,7 @@ class FIFO:
                             for event in passives.create_event():
                                 self.sensu.send_event(event=event)
 
-                        except WebAPIException as e:
+                        except (WebAPIException, ArgoSensuToolsException) as e:
                             self.logger.error(str(e))
                             self.logger.warning(
                                 f"Event {line.strip()} not processed"
