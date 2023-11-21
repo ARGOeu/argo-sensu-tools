@@ -72,25 +72,25 @@ class FIFO:
 
         with open(self.fifo_path) as f:
             while not killer.kill_now:
-                line = f.readline(1024)
+                for line in f:
+                    if line:
+                        self.logger.info(f"Received line: '{line}'")
+                        try:
+                            passives = PassiveEvents(
+                                message=line,
+                                metricprofiles=self.webapi.get_metricprofiles(),
+                                voname=self.voname,
+                                namespace=self.namespace
+                            )
 
-                if line:
-                    try:
-                        passives = PassiveEvents(
-                            message=line,
-                            metricprofiles=self.webapi.get_metricprofiles(),
-                            voname=self.voname,
-                            namespace=self.namespace
-                        )
+                            for event in passives.create_event():
+                                self.sensu.send_event(event=event)
 
-                        for event in passives.create_event():
-                            self.sensu.send_event(event=event)
-
-                    except WebAPIException as e:
-                        self.logger.error(str(e))
-                        self.logger.warning(
-                            f"Event {line.strip()} not processed"
-                        )
-                        continue
+                        except WebAPIException as e:
+                            self.logger.error(str(e))
+                            self.logger.warning(
+                                f"Event {line.strip()} not processed"
+                            )
+                            continue
 
             self._clean()
