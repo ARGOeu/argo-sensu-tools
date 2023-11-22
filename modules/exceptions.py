@@ -3,7 +3,7 @@ class ArgoSensuToolsException(Exception):
         self.msg = msg
 
     def __str__(self):
-        return f"Error: {str(self.msg)}"
+        return str(self.msg)
 
 
 class ConfigException(ArgoSensuToolsException):
