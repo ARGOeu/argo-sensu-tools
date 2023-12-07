@@ -46,8 +46,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_unitdir}/passive2sensu.service
 %attr(-,sensu,sensu) %dir %{_localstatedir}/log/argo-sensu-tools/
 
+
 %post -n argo-sensu-tools
 %systemd_postun_with_restart passive2sensu.service
 
+
 %preun -n argo-sensu-tools
 %systemd_preun passive2sensu.service
+
+
+%changelog
+* Thu Dec 7 2023 Katarina Zailac <kzailac@srce.hr> - 0.1.0-1%{?dist}
+- ARGO-4430 passive2sensu service fails when line not complete
+- ARGO-4429 Read fifo file line-by-line
+- ARGO-4422 Improve handling of passive2sensu service
+- ARGO-4414 Create a service that is going to handle passive metrics on Sensu agent
