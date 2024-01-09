@@ -11,6 +11,10 @@ WRONG_PASSIVE_DATA = """
 [1698053882] PROCESS_SERVICE_CHECK_RESULT;grid02
 """
 
+MULTILINE_PASSIVE_DATA = """
+[1704796827] PROCESS_SERVICE_CHECK_RESULT;ifaece04.pic.es;ch.cern.HTCondorCE-JobSubmit-ops;2;CRITICAL - Job (0) has failed with status: Job submit result undefined, failed to parse the job ID\n=== Credentials:\n=== Job description:\nJDL([('universe', 'vanilla'), ('executable', 'hostname'), ('transfer_executable', 'true'), ('output', '/var/lib/gridprobes/ops/scondor/ifaece04.pic.es/out/gridjob.out'), ('error', '/var/lib/gridprobes/ops/scondor/ifaece04.pic.es/out/gridjob.err'), ('log', '/var/lib/gridprobes/ops/scondor/ifaece04.pic.es/out/gridjob.log'), ('log_xml', 'true'), ('should_transfer_files', 'YES'), ('when_to_transfer_output', 'ON_EXIT'), ('use_x509userproxy', 'true')])\n=== Job submission command:\ncondor_submit --spool --name ifaece04.pic.es --pool ifaece04.pic.es:9619 /var/lib/gridprobes/ops/scondor/ifaece04.pic.es/gridjob.j\n\nJob submit result undefined, failed to parse the job ID\n
+"""
+
 METRICPROFILES = [
     {
         "id": "xxxxx",
@@ -60,6 +64,13 @@ METRICPROFILES = [
                     "eu.egi.SRM-VOLsDir",
                     "eu.egi.SRM-VOPut"
                 ]
+            },
+            {
+                "service": "org.opensciencegrid.htcondorce",
+                "metrics": [
+                    "ch.cern.HTCondorCE-JobState",
+                    "ch.cern.HTCondorCE-JobSubmit"
+                ]
             }
         ]
     }
@@ -83,6 +94,40 @@ class Passive2EventTests(unittest.TestCase):
                 "metric": "eu.egi.SRM-VOLsDir-ops",
                 "status": 0,
                 "output": "OK - Directory successfully listed"
+            }
+        )
+
+    def test_parse_multiline(self):
+        self.maxDiff = None
+        events = PassiveEvents(
+            message=MULTILINE_PASSIVE_DATA,
+            metricprofiles=METRICPROFILES,
+            voname="ops",
+            namespace="TEST"
+        )
+        parsed_data = events._parse()
+        self.assertEqual(
+            parsed_data, {
+                "hostname": "ifaece04.pic.es",
+                "metric": "ch.cern.HTCondorCE-JobSubmit-ops",
+                "status": 2,
+                "output":
+                    "CRITICAL - Job (0) has failed with status: Job submit "
+                    "result undefined, failed to parse the job ID\n=== "
+                    "Credentials:\n=== Job description:\n"
+                    "JDL([('universe', 'vanilla'), ('executable', 'hostname'), "
+                    "('transfer_executable', 'true'), ('output', "
+                    "'/var/lib/gridprobes/ops/scondor/ifaece04.pic.es/out/"
+                    "gridjob.out'), ('error', '/var/lib/gridprobes/ops/scondor/"
+                    "ifaece04.pic.es/out/gridjob.err'), ('log', '/var/lib/"
+                    "gridprobes/ops/scondor/ifaece04.pic.es/out/gridjob.log'), "
+                    "('log_xml', 'true'), ('should_transfer_files', 'YES'), "
+                    "('when_to_transfer_output', 'ON_EXIT'), "
+                    "('use_x509userproxy', 'true')])\n=== Job submission "
+                    "command:\ncondor_submit --spool --name ifaece04.pic.es "
+                    "--pool ifaece04.pic.es:9619 /var/lib/gridprobes/ops/"
+                    "scondor/ifaece04.pic.es/gridjob.j\n\n"
+                    "Job submit result undefined, failed to parse the job ID"
             }
         )
 
