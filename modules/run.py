@@ -3,6 +3,7 @@ import os
 import signal
 import stat
 import sys
+import re
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
@@ -19,6 +20,18 @@ class GracefulKiller:
 
     def exit_gracefully(self, *args):
         self.kill_now = True
+
+
+def process_line(line):
+    line = line.replace("\\n", "\n").replace("\\r", "")
+    splitted = line.splitlines(False)
+    splitted = [item for item in splitted if item]
+
+    if len(splitted) > 1:
+        return f"{splitted[0]}(...){splitted[-1]}"
+
+    else:
+        return splitted[0]
 
 
 class FIFO:
@@ -74,7 +87,7 @@ class FIFO:
             while not killer.kill_now:
                 line = f.read()
                 if line:
-                    self.logger.info(f"Received line: '{line}'")
+                    self.logger.info(f"Received line: '{process_line(line)}'")
                     try:
                         passives = PassiveEvents(
                             message=line,
