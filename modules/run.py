@@ -3,7 +3,6 @@ import os
 import signal
 import stat
 import sys
-import re
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
