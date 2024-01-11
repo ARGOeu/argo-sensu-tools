@@ -95,7 +95,7 @@ class FIFO:
                             namespace=self.namespace
                         )
 
-                        for event in passives.create_event():
+                        for event in passives.create_events():
                             self.sensu.send_event(event=event)
 
                     except (WebAPIException, ArgoSensuToolsException) as e:

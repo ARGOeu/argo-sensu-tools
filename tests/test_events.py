@@ -110,6 +110,17 @@ METRICPROFILES = [
                     "ch.cern.HTCondorCE-JobState",
                     "ch.cern.HTCondorCE-JobSubmit"
                 ]
+            },
+            {
+                "service": "XRootD",
+                "metrics": [
+                    "egi.xrootd.readwrite",
+                    "egi.xrootd.readwrite-Del",
+                    "egi.xrootd.readwrite-Get",
+                    "egi.xrootd.readwrite-Ls",
+                    "egi.xrootd.readwrite-LsDir",
+                    "egi.xrootd.readwrite-Put"
+                ]
             }
         ]
     }
@@ -254,9 +265,9 @@ class Passive2EventTests(unittest.TestCase):
             ]
         )
 
-    def test_create_event(self):
-        event = self.events.create_event()
-        self.assertEqual(event, [{
+    def test_create_events(self):
+        events = self.events.create_events()
+        self.assertEqual(events, [{
             "entity": {
                 "entity_class": "proxy",
                 "metadata": {
@@ -273,3 +284,48 @@ class Passive2EventTests(unittest.TestCase):
                 "handlers": ["publisher-handler"]
             }
         }])
+
+    def test_create_events_for_multiple_parsed(self):
+        self.maxDiff = None
+        passives = PassiveEvents(
+            message=MULTIPLE_EVENTS_DATA,
+            metricprofiles=METRICPROFILES,
+            voname="ops",
+            namespace="TEST"
+        )
+        events = passives.create_events()
+        self.assertEqual(
+            events, [{
+                "entity": {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "XRootD__xrootd.phy.bris.ac.uk",
+                        "namespace": "TEST"
+                    }
+                },
+                "check": {
+                    "output": "WARNING - lsdir skipped",
+                    "status": 1,
+                    "metadata": {
+                        "name": "egi.xrootd.readwrite-Put"
+                    },
+                    "handlers": ["publisher-handler"]
+                }
+            }, {
+                "entity": {
+                    "entity_class": "proxy",
+                    "metadata": {
+                        "name": "XRootD__xrootd.phy.bris.ac.uk",
+                        "namespace": "TEST"
+                    }
+                },
+                "check": {
+                    "output": "WARNING - Del skipped",
+                    "status": 1,
+                    "metadata": {
+                        "name": "egi.xrootd.readwrite-Del"
+                    },
+                    "handlers": ["publisher-handler"]
+                }
+            }]
+        )

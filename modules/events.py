@@ -53,7 +53,7 @@ class PassiveEvents:
 
         return sorted(list(servicetypes))
 
-    def create_event(self):
+    def create_events(self):
         data = self._parse()
 
         events = list()
