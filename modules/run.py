@@ -3,6 +3,7 @@ import os
 import signal
 import stat
 import sys
+import re
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
@@ -22,12 +23,9 @@ class GracefulKiller:
 
 
 def process_line(line):
-    splitted = line.split("\n")
+    line = line.replace("\\n", "\n").replace("\\r", "")
+    splitted = line.splitlines(False)
     splitted = [item for item in splitted if item]
-
-    if len(splitted) == 1:
-        splitted = splitted[0].split("\\n")
-        splitted = [item for item in splitted if item]
 
     if len(splitted) > 1:
         return f"{splitted[0]}(...){splitted[-1]}"
