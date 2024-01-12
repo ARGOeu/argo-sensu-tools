@@ -13,9 +13,9 @@ class PassiveEvents:
     def _parse(self):
         try:
             messages = re.sub(
-                "(\[\d*\] PROCESS_SERVICE_CHECK_RESULT;)", "::", self.message
+                "(\[\d*\] PROCESS_SERVICE_CHECK_RESULT;)", "!!!", self.message
             )
-            messages = messages.split("::")
+            messages = messages.split("!!!")
             messages = [item for item in messages if item]
 
             data = list()
