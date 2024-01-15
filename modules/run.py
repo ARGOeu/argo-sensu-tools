@@ -3,7 +3,6 @@ import os
 import signal
 import stat
 import sys
-import re
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
@@ -96,7 +95,7 @@ class FIFO:
                             namespace=self.namespace
                         )
 
-                        for event in passives.create_event():
+                        for event in passives.create_events():
                             self.sensu.send_event(event=event)
 
                     except (WebAPIException, ArgoSensuToolsException) as e:
