@@ -1,0 +1,14 @@
+[Unit]
+Description=Service handling passive metrics on Sensu
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/passive2sensud
+KillMode=process
+User=sensu
+Group=sensu
+SyslogIdentifier=passive2sensu
+
+[Install]
+WantedBy=multi-user.target

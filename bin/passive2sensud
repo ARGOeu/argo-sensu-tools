@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+import sys
+
+from argo_sensu_tools.config import Config
+from argo_sensu_tools.exceptions import ConfigException
+from argo_sensu_tools.log import get_logger
+from argo_sensu_tools.run import FIFO
+
+CONFFILE = "/etc/argo-sensu-tools/argo-sensu-tools.conf"
+LOGFILE = "/var/log/argo-sensu-tools/argo-sensu-tools.log"
+
+
+def main():
+    logger = get_logger(filename=LOGFILE)
+    try:
+        config = Config(config_file=CONFFILE)
+
+        webapi_url = config.get_webapi_url()
+        webapi_token = config.get_webapi_token()
+        list_metricprofiles = config.get_metricprofiles()
+        sensu_url = config.get_sensu_url()
+        sensu_token = config.get_sensu_token()
+        voname = config.get_voname()
+        namespace = config.get_namespace()
+        fifo_path = config.get_fifo()
+
+        fifo = FIFO(
+            fifo_path=fifo_path,
+            webapi_url=webapi_url,
+            webapi_token=webapi_token,
+            metricprofiles=list_metricprofiles,
+            sensu_url=sensu_url,
+            sensu_token=sensu_token,
+            voname=voname,
+            namespace=namespace
+        )
+
+        fifo.read()
+
+    except ConfigException as e:
+        logger.error(str(e))
+        sys.exit(2)
+
+
+main()
