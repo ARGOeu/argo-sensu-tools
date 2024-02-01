@@ -4,7 +4,7 @@
 
 Summary:       Tools for ARGO Sensu
 Name:          argo-sensu-tools
-Version:       0.1.0
+Version:       0.1.1
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -56,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Feb 1 2024 Katarina Zailac <kzailac@srce.hr> - 0.1.1-1%{?dist}
+- ARGO-4458 Fix handling of messages which are passed as parts of other messages
+- ARGO-4457 Improve log messages
+- ARGO-4456 passive2sensu not handling well messages with newlines
 * Thu Dec 7 2023 Katarina Zailac <kzailac@srce.hr> - 0.1.0-1%{?dist}
 - ARGO-4430 passive2sensu service fails when line not complete
 - ARGO-4429 Read fifo file line-by-line
