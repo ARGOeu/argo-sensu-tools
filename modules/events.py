@@ -75,7 +75,12 @@ class PassiveEvents:
                     "check": {
                         "output": item["output"],
                         "status": item["status"],
-                        "handlers": ["publisher-handler"],
+                        "handlers": [],
+                        "pipelines": [{
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }],
                         "metadata": {
                             "name": metric_name
                         }

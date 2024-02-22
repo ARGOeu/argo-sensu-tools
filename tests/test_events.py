@@ -281,12 +281,16 @@ class Passive2EventTests(unittest.TestCase):
                 "metadata": {
                     "name": "eu.egi.SRM-VOLsDir"
                 },
-                "handlers": ["publisher-handler"]
+                "handlers": [],
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
             }
         }])
 
     def test_create_events_for_multiple_parsed(self):
-        self.maxDiff = None
         passives = PassiveEvents(
             message=MULTIPLE_EVENTS_DATA,
             metricprofiles=METRICPROFILES,
@@ -309,7 +313,12 @@ class Passive2EventTests(unittest.TestCase):
                     "metadata": {
                         "name": "egi.xrootd.readwrite-Put"
                     },
-                    "handlers": ["publisher-handler"]
+                    "handlers": [],
+                    "pipelines": [{
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }]
                 }
             }, {
                 "entity": {
@@ -325,7 +334,12 @@ class Passive2EventTests(unittest.TestCase):
                     "metadata": {
                         "name": "egi.xrootd.readwrite-Del"
                     },
-                    "handlers": ["publisher-handler"]
+                    "handlers": [],
+                    "pipelines": [{
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }]
                 }
             }]
         )
