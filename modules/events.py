@@ -1,3 +1,5 @@
+import re
+
 from argo_sensu_tools.exceptions import ArgoSensuToolsException
 
 
@@ -10,13 +12,21 @@ class PassiveEvents:
 
     def _parse(self):
         try:
-            message = self.message.split(";")
-            data = {
-                "hostname": message[1],
-                "metric": message[2],
-                "status": int(message[3]),
-                "output": message[4].strip()
-            }
+            messages = re.sub(
+                "(\[\d*\] PROCESS_SERVICE_CHECK_RESULT;)", "!!!", self.message
+            )
+            messages = messages.split("!!!")
+            messages = [item for item in messages if item]
+
+            data = list()
+            for message in messages:
+                message = message.split(";")
+                data.append({
+                    "hostname": message[0],
+                    "metric": message[1],
+                    "status": int(message[2]),
+                    "output": ";".join(message[3:]).strip()
+                })
 
             return data
 
@@ -43,32 +53,38 @@ class PassiveEvents:
 
         return sorted(list(servicetypes))
 
-    def create_event(self):
-        item = self._parse()
-        servicetypes = self._servicetypes4metric(item["metric"])
+    def create_events(self):
+        data = self._parse()
 
         events = list()
+        for item in data:
+            servicetypes = self._servicetypes4metric(item["metric"])
 
-        for servicetype in servicetypes:
-            entity_name = f"{servicetype}__{item['hostname']}"
-            metric_name = self._metric_name(item["metric"])
+            for servicetype in servicetypes:
+                entity_name = f"{servicetype}__{item['hostname']}"
+                metric_name = self._metric_name(item["metric"])
 
-            events.append({
-                "entity": {
-                    "entity_class": "proxy",
-                    "metadata": {
-                        "name": entity_name,
-                        "namespace": self.namespace
+                events.append({
+                    "entity": {
+                        "entity_class": "proxy",
+                        "metadata": {
+                            "name": entity_name,
+                            "namespace": self.namespace
+                        }
+                    },
+                    "check": {
+                        "output": item["output"],
+                        "status": item["status"],
+                        "handlers": [],
+                        "pipelines": [{
+                            "name": "hard_state",
+                            "type": "Pipeline",
+                            "api_version": "core/v2"
+                        }],
+                        "metadata": {
+                            "name": metric_name
+                        }
                     }
-                },
-                "check": {
-                    "output": item["output"],
-                    "status": item["status"],
-                    "handlers": ["publisher-handler"],
-                    "metadata": {
-                        "name": metric_name
-                    }
-                }
-            })
+                })
 
         return events

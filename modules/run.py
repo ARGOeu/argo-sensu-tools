@@ -21,6 +21,18 @@ class GracefulKiller:
         self.kill_now = True
 
 
+def process_line(line):
+    line = line.replace("\\n", "\n").replace("\\r", "")
+    splitted = line.splitlines(False)
+    splitted = [item for item in splitted if item]
+
+    if len(splitted) > 1:
+        return f"{splitted[0]}(...){splitted[-1]}"
+
+    else:
+        return splitted[0]
+
+
 class FIFO:
     def __init__(
             self, fifo_path, webapi_url, webapi_token, metricprofiles,
@@ -72,25 +84,25 @@ class FIFO:
 
         with open(self.fifo_path) as f:
             while not killer.kill_now:
-                for line in f:
-                    if line:
-                        self.logger.info(f"Received line: '{line}'")
-                        try:
-                            passives = PassiveEvents(
-                                message=line,
-                                metricprofiles=self.webapi.get_metricprofiles(),
-                                voname=self.voname,
-                                namespace=self.namespace
-                            )
+                line = f.read()
+                if line:
+                    self.logger.info(f"Received line: '{process_line(line)}'")
+                    try:
+                        passives = PassiveEvents(
+                            message=line,
+                            metricprofiles=self.webapi.get_metricprofiles(),
+                            voname=self.voname,
+                            namespace=self.namespace
+                        )
 
-                            for event in passives.create_event():
-                                self.sensu.send_event(event=event)
+                        for event in passives.create_events():
+                            self.sensu.send_event(event=event)
 
-                        except (WebAPIException, ArgoSensuToolsException) as e:
-                            self.logger.error(str(e))
-                            self.logger.warning(
-                                f"Event {line.strip()} not processed"
-                            )
-                            continue
+                    except (WebAPIException, ArgoSensuToolsException) as e:
+                        self.logger.error(str(e))
+                        self.logger.warning(
+                            f"Event {line.strip()} not processed"
+                        )
+                        continue
 
             self._clean()
