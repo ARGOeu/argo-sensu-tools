@@ -13,10 +13,10 @@ pipeline {
     stages {
         stage ('Build'){
             parallel {
-                stage ('Build Centos 7') {
+                stage ('Build Rocky 9') {
                     agent {
                         docker {
-                            image 'argo.registry:5000/epel-7-ams'
+                            image 'argo.registry:5000/epel-9-ams'
                             args '-u jenkins:jenkins'
                         }
                     }
@@ -24,7 +24,7 @@ pipeline {
                         echo 'Building Rpm...'
                         withCredentials(bindings: [sshUserPrivateKey(credentialsId: 'jenkins-rpm-repo', usernameVariable: 'REPOUSER', \
                                                                     keyFileVariable: 'REPOKEY')]) {
-                            sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d centos7 -p ${PROJECT_DIR} -s ${REPOKEY}"
+                            sh "/home/jenkins/build-rpm.sh -w ${WORKSPACE} -b ${BRANCH_NAME} -d rocky9 -p ${PROJECT_DIR} -s ${REPOKEY}"
                         }
                         archiveArtifacts artifacts: '**/*.rpm', fingerprint: true
                     }
@@ -37,7 +37,7 @@ pipeline {
                 stage ('Execute tests') {
                     agent {
                         docker {
-                            image 'argo.registry:5000/epel-7-ams'
+                            image 'argo.registry:5000/epel-9-ams'
                             args '-u jenkins:jenkins -v /dev/log:/dev/log'
                         }
                     }

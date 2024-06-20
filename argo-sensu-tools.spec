@@ -14,7 +14,7 @@ Prefix:        %{_prefix}
 BuildArch:     noarch
 
 BuildRequires: python3-devel
-Requires:      python36-requests
+Requires:      python3-requests
 
 
 %description
