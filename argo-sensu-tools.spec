@@ -4,7 +4,7 @@
 
 Summary:       Tools for ARGO Sensu
 Name:          argo-sensu-tools
-Version:       0.2.0
+Version:       0.3.0
 Release:       1%{?dist}
 Source0:       %{name}-%{version}.tar.gz
 License:       ASL 2.0
@@ -56,6 +56,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Jun 27 2024 Katarina Zailac <kzailac@srce.hr> - 0.3.0-1%{?dist}
+- ARGO-4685 Configure creation of el9 rpm
 * Thu Mar 7 2024 Katarina Zailac <kzailac@srce.hr> - 0.2.0-1%{?dist}
 - ARGO-4482 When sending events for passive metrics, use hard_state pipeline
 * Thu Feb 1 2024 Katarina Zailac <kzailac@srce.hr> - 0.1.1-1%{?dist}
