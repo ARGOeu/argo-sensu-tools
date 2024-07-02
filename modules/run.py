@@ -36,7 +36,7 @@ def process_line(line):
 class FIFO:
     def __init__(
             self, fifo_path, webapi_url, webapi_token, metricprofiles,
-            sensu_url, sensu_token, voname, namespace
+            sensu_url, sensu_token, voname, namespace, tenant
     ):
         self.logger = logging.getLogger("argo-sensu-tools.run")
         self.fifo_path = fifo_path
@@ -52,6 +52,7 @@ class FIFO:
         )
         self.voname = voname
         self.namespace = namespace
+        self.tenant = tenant
         self.user = "sensu"
 
     def _create(self):
@@ -92,7 +93,8 @@ class FIFO:
                             message=line,
                             metricprofiles=self.webapi.get_metricprofiles(),
                             voname=self.voname,
-                            namespace=self.namespace
+                            namespace=self.namespace,
+                            tenant=self.tenant
                         )
 
                         for event in passives.create_events():

@@ -133,7 +133,8 @@ class Passive2EventTests(unittest.TestCase):
             message=PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
 
     def test_parse(self):
@@ -152,7 +153,8 @@ class Passive2EventTests(unittest.TestCase):
             message=MULTILINE_PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -185,7 +187,8 @@ class Passive2EventTests(unittest.TestCase):
             message=WRONG_PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         with self.assertRaises(ArgoSensuToolsException) as context:
             events._parse()
@@ -200,7 +203,8 @@ class Passive2EventTests(unittest.TestCase):
             message=MULTIPLE_EVENTS_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -225,7 +229,8 @@ class Passive2EventTests(unittest.TestCase):
             message=MULTIPLE_MULTILINE_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -272,14 +277,20 @@ class Passive2EventTests(unittest.TestCase):
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "SRM__grid02.hep.by",
-                    "namespace": "TEST"
+                    "namespace": "TEST",
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 }
             },
             "check": {
                 "output": "OK - Directory successfully listed",
                 "status": 0,
                 "metadata": {
-                    "name": "eu.egi.SRM-VOLsDir"
+                    "name": "eu.egi.SRM-VOLsDir",
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 },
                 "handlers": [],
                 "pipelines": [{
@@ -300,7 +311,8 @@ class Passive2EventTests(unittest.TestCase):
             message=MULTIPLE_EVENTS_DATA,
             metricprofiles=METRICPROFILES,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         events = passives.create_events()
         self.assertEqual(
@@ -309,14 +321,20 @@ class Passive2EventTests(unittest.TestCase):
                     "entity_class": "proxy",
                     "metadata": {
                         "name": "XRootD__xrootd.phy.bris.ac.uk",
-                        "namespace": "TEST"
+                        "namespace": "TEST",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     }
                 },
                 "check": {
                     "output": "WARNING - lsdir skipped",
                     "status": 1,
                     "metadata": {
-                        "name": "egi.xrootd.readwrite-Put"
+                        "name": "egi.xrootd.readwrite-Put",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     },
                     "handlers": [],
                     "pipelines": [{
@@ -335,14 +353,20 @@ class Passive2EventTests(unittest.TestCase):
                     "entity_class": "proxy",
                     "metadata": {
                         "name": "XRootD__xrootd.phy.bris.ac.uk",
-                        "namespace": "TEST"
+                        "namespace": "TEST",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     }
                 },
                 "check": {
                     "output": "WARNING - Del skipped",
                     "status": 1,
                     "metadata": {
-                        "name": "egi.xrootd.readwrite-Del"
+                        "name": "egi.xrootd.readwrite-Del",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     },
                     "handlers": [],
                     "pipelines": [{

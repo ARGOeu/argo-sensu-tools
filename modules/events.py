@@ -4,11 +4,12 @@ from argo_sensu_tools.exceptions import ArgoSensuToolsException
 
 
 class PassiveEvents:
-    def __init__(self, message, metricprofiles, voname, namespace):
+    def __init__(self, message, metricprofiles, voname, namespace, tenant):
         self.message = message
         self.metricprofiles = metricprofiles
         self.voname = voname
         self.namespace = namespace
+        self.tenant = tenant
 
     def _parse(self):
         try:
@@ -69,7 +70,10 @@ class PassiveEvents:
                         "entity_class": "proxy",
                         "metadata": {
                             "name": entity_name,
-                            "namespace": self.namespace
+                            "namespace": self.namespace,
+                            "labels": {
+                                "tenants": self.tenant
+                            }
                         }
                     },
                     "check": {
@@ -77,7 +81,10 @@ class PassiveEvents:
                         "status": item["status"],
                         "handlers": [],
                         "metadata": {
-                            "name": metric_name
+                            "name": metric_name,
+                            "labels": {
+                                "tenants": self.tenant
+                            }
                         },
                         "pipelines": [{
                             "name": "hard_state",

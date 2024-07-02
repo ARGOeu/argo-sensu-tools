@@ -43,7 +43,10 @@ class SensuTests(unittest.TestCase):
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "SRM__grid02.hep.by",
-                    "namespace": "TEST"
+                    "namespace": "TEST",
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 }
             },
             "check": {
@@ -51,7 +54,10 @@ class SensuTests(unittest.TestCase):
                           "0:00:02.863600",
                 "status": 0,
                 "metadata": {
-                    "name": "eu.egi.SRM-VOPut"
+                    "name": "eu.egi.SRM-VOPut",
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 }
             },
             "pipelines": [
