@@ -22,6 +22,7 @@ def main():
         sensu_token = config.get_sensu_token()
         voname = config.get_voname()
         namespace = config.get_namespace()
+        tenant = config.get_tenant()
         fifo_path = config.get_fifo()
 
         fifo = FIFO(
@@ -32,7 +33,8 @@ def main():
             sensu_url=sensu_url,
             sensu_token=sensu_token,
             voname=voname,
-            namespace=namespace
+            namespace=namespace,
+            tenant=tenant
         )
 
         fifo.read()
