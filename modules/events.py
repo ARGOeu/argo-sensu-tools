@@ -76,15 +76,20 @@ class PassiveEvents:
                         "output": item["output"],
                         "status": item["status"],
                         "handlers": [],
+                        "metadata": {
+                            "name": metric_name
+                        },
                         "pipelines": [{
                             "name": "hard_state",
                             "type": "Pipeline",
                             "api_version": "core/v2"
-                        }],
-                        "metadata": {
-                            "name": metric_name
-                        }
-                    }
+                        }]
+                    },
+                    "pipelines": [{
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }]
                 })
 
         return events

@@ -287,7 +287,12 @@ class Passive2EventTests(unittest.TestCase):
                     "type": "Pipeline",
                     "api_version": "core/v2"
                 }]
-            }
+            },
+            "pipelines": [{
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }]
         }])
 
     def test_create_events_for_multiple_parsed(self):
@@ -319,7 +324,12 @@ class Passive2EventTests(unittest.TestCase):
                         "type": "Pipeline",
                         "api_version": "core/v2"
                     }]
-                }
+                },
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
             }, {
                 "entity": {
                     "entity_class": "proxy",
@@ -340,6 +350,11 @@ class Passive2EventTests(unittest.TestCase):
                         "type": "Pipeline",
                         "api_version": "core/v2"
                     }]
-                }
+                },
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
             }]
         )
