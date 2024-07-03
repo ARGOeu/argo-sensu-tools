@@ -55,6 +55,9 @@ class SensuTests(unittest.TestCase):
                 "status": 0,
                 "metadata": {
                     "name": "eu.egi.SRM-VOPut",
+                    "annotations": {
+                        "attempts": "2"
+                    },
                     "labels": {
                         "tenants": "TENANT"
                     }

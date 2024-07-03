@@ -82,6 +82,9 @@ class PassiveEvents:
                         "handlers": [],
                         "metadata": {
                             "name": metric_name,
+                            "annotations": {
+                                "attempts": "2"
+                            },
                             "labels": {
                                 "tenants": self.tenant
                             }
