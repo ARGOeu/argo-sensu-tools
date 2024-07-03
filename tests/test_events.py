@@ -288,6 +288,9 @@ class Passive2EventTests(unittest.TestCase):
                 "status": 0,
                 "metadata": {
                     "name": "eu.egi.SRM-VOLsDir",
+                    "annotations": {
+                        "attempts": "2"
+                    },
                     "labels": {
                         "tenants": "TENANT"
                     }
@@ -331,6 +334,9 @@ class Passive2EventTests(unittest.TestCase):
                     "output": "WARNING - lsdir skipped",
                     "status": 1,
                     "metadata": {
+                        "annotations": {
+                            "attempts": "2"
+                        },
                         "name": "egi.xrootd.readwrite-Put",
                         "labels": {
                             "tenants": "TENANT"
@@ -364,6 +370,9 @@ class Passive2EventTests(unittest.TestCase):
                     "status": 1,
                     "metadata": {
                         "name": "egi.xrootd.readwrite-Del",
+                        "annotations": {
+                            "attempts": "2"
+                        },
                         "labels": {
                             "tenants": "TENANT"
                         }
