@@ -4,9 +4,12 @@ from argo_sensu_tools.exceptions import ArgoSensuToolsException
 
 
 class PassiveEvents:
-    def __init__(self, message, metricprofiles, voname, namespace, tenant):
+    def __init__(
+            self, message, metricprofiles, checks, voname, namespace, tenant
+    ):
         self.message = message
         self.metricprofiles = metricprofiles
+        self.checks = checks
         self.voname = voname
         self.namespace = namespace
         self.tenant = tenant
@@ -54,6 +57,12 @@ class PassiveEvents:
 
         return sorted(list(servicetypes))
 
+    def _get_attempts(self, metric):
+        return [
+            check for check in self.checks if
+            check["metadata"]["name"] == metric
+        ][0]["metadata"]["annotations"]["attempts"]
+
     def create_events(self):
         data = self._parse()
 
@@ -83,7 +92,7 @@ class PassiveEvents:
                         "metadata": {
                             "name": metric_name,
                             "annotations": {
-                                "attempts": "2"
+                                "attempts": self._get_attempts(metric_name)
                             },
                             "labels": {
                                 "tenants": self.tenant
