@@ -11,6 +11,24 @@ class Sensu:
         self.namespace = namespace
         self.logger = logging.getLogger("argo-sensu-tools.sensu")
 
+    def get_checks(self):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{self.namespace}/checks",
+            headers={
+                "Authorization": f"Key {self.token}",
+                "Content-Type": "application/json"
+            }
+        )
+
+        if response.ok:
+            return response.json()
+
+        else:
+            self.logger.error(
+                f"Sensu: Error fetching checks: "
+                f"{response.status_code} {response.reason}"
+            )
+
     def send_event(self, event):
         response = requests.post(
             f"{self.url}/api/core/v2/namespaces/{self.namespace}/events",
