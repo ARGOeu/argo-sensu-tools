@@ -2,6 +2,7 @@ import json
 import logging
 
 import requests
+from argo_sensu_tools.exceptions import SensuException
 
 
 class Sensu:
@@ -24,9 +25,9 @@ class Sensu:
             return response.json()
 
         else:
-            self.logger.error(
-                f"Sensu: Error fetching checks: "
-                f"{response.status_code} {response.reason}"
+            raise SensuException(
+                f"Error fetching checks: {response.status_code} "
+                f"{response.reason}"
             )
 
     def send_event(self, event):

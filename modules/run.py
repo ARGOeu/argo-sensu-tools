@@ -6,7 +6,8 @@ import sys
 
 from argo_sensu_tools.data import WebAPI
 from argo_sensu_tools.events import PassiveEvents
-from argo_sensu_tools.exceptions import WebAPIException, ArgoSensuToolsException
+from argo_sensu_tools.exceptions import WebAPIException, \
+    ArgoSensuToolsException, SensuException
 from argo_sensu_tools.sensu import Sensu
 
 
@@ -87,11 +88,14 @@ class FIFO:
             while not killer.kill_now:
                 line = f.read()
                 if line:
-                    self.logger.info(f"Received line: '{process_line(line)}'")
+                    self.logger.info(
+                        f"Received line: '{process_line(line)}'"
+                    )
                     try:
                         passives = PassiveEvents(
                             message=line,
                             metricprofiles=self.webapi.get_metricprofiles(),
+                            checks=self.sensu.get_checks(),
                             voname=self.voname,
                             namespace=self.namespace,
                             tenant=self.tenant
@@ -100,7 +104,11 @@ class FIFO:
                         for event in passives.create_events():
                             self.sensu.send_event(event=event)
 
-                    except (WebAPIException, ArgoSensuToolsException) as e:
+                    except (
+                            WebAPIException,
+                            ArgoSensuToolsException,
+                            SensuException
+                    ) as e:
                         self.logger.error(str(e))
                         self.logger.warning(
                             f"Event {line.strip()} not processed"

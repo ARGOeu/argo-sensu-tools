@@ -4,6 +4,7 @@ import unittest
 from unittest import mock
 
 from argo_sensu_tools.sensu import Sensu
+from argo_sensu_tools.exceptions import SensuException
 
 LOGNAME = "argo-sensu-tools.sensu"
 DUMMY_LOGGER = logging.getLogger(LOGNAME)
@@ -362,7 +363,7 @@ class SensuTests(unittest.TestCase):
     @mock.patch("argo_sensu_tools.sensu.requests.get")
     def test_get_checks_with_error(self, mock_get):
         mock_get.return_value = MockResponse(status_code=400)
-        with self.assertLogs(LOGNAME) as log:
+        with self.assertRaises(SensuException) as context:
             self.sensu.get_checks()
         mock_get.assert_called_once_with(
             "https://sensu-devel.cro-ngi.hr:8080/api/core/v2/namespaces/"
@@ -372,6 +373,7 @@ class SensuTests(unittest.TestCase):
                 "Content-Type": "application/json"
             }
         )
-        self.assertEqual(log.output, [
-            f"ERROR:{LOGNAME}:Sensu: Error fetching checks: 400 Bad Request"
-        ])
+        self.assertEqual(
+            context.exception.__str__(),
+            f"Sensu: Error fetching checks: 400 Bad Request"
+        )
