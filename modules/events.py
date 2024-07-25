@@ -4,11 +4,15 @@ from argo_sensu_tools.exceptions import ArgoSensuToolsException
 
 
 class PassiveEvents:
-    def __init__(self, message, metricprofiles, voname, namespace):
+    def __init__(
+            self, message, metricprofiles, checks, voname, namespace, tenant
+    ):
         self.message = message
         self.metricprofiles = metricprofiles
+        self.checks = checks
         self.voname = voname
         self.namespace = namespace
+        self.tenant = tenant
 
     def _parse(self):
         try:
@@ -53,6 +57,12 @@ class PassiveEvents:
 
         return sorted(list(servicetypes))
 
+    def _get_attempts(self, metric):
+        return [
+            check for check in self.checks if
+            check["metadata"]["name"] == metric
+        ][0]["metadata"]["annotations"]["attempts"]
+
     def create_events(self):
         data = self._parse()
 
@@ -69,22 +79,36 @@ class PassiveEvents:
                         "entity_class": "proxy",
                         "metadata": {
                             "name": entity_name,
-                            "namespace": self.namespace
+                            "namespace": self.namespace,
+                            "labels": {
+                                "tenants": self.tenant
+                            }
                         }
                     },
                     "check": {
                         "output": item["output"],
                         "status": item["status"],
                         "handlers": [],
+                        "metadata": {
+                            "name": metric_name,
+                            "annotations": {
+                                "attempts": self._get_attempts(metric_name)
+                            },
+                            "labels": {
+                                "tenants": self.tenant
+                            }
+                        },
                         "pipelines": [{
                             "name": "hard_state",
                             "type": "Pipeline",
                             "api_version": "core/v2"
-                        }],
-                        "metadata": {
-                            "name": metric_name
-                        }
-                    }
+                        }]
+                    },
+                    "pipelines": [{
+                        "name": "hard_state",
+                        "type": "Pipeline",
+                        "api_version": "core/v2"
+                    }]
                 })
 
         return events

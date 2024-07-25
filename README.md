@@ -28,13 +28,14 @@ voname = ops
 
 ### SENSU section
 
-SENSU section must contain three entries with defined information on Sensu backend: url, access token for Sensu API, and name of the namespace the agent is assigned to.
+SENSU section must contain three entries with defined information on Sensu backend: url, access token for Sensu API, name of the namespace the agent is assigned to, and tenant name.
 
 ```text
 [SENSU]
 url = https://sensu-devel.cro-ngi.hr:8080/
 token = t0k3n
-namespace = TENANT
+namespace = tenant_namespace
+tenant = TENANT
 ```
 
 ### WEB-API section

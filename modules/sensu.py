@@ -2,6 +2,7 @@ import json
 import logging
 
 import requests
+from argo_sensu_tools.exceptions import SensuException
 
 
 class Sensu:
@@ -10,6 +11,24 @@ class Sensu:
         self.token = token
         self.namespace = namespace
         self.logger = logging.getLogger("argo-sensu-tools.sensu")
+
+    def get_checks(self):
+        response = requests.get(
+            f"{self.url}/api/core/v2/namespaces/{self.namespace}/checks",
+            headers={
+                "Authorization": f"Key {self.token}",
+                "Content-Type": "application/json"
+            }
+        )
+
+        if response.ok:
+            return response.json()
+
+        else:
+            raise SensuException(
+                f"Error fetching checks: {response.status_code} "
+                f"{response.reason}"
+            )
 
     def send_event(self, event):
         response = requests.post(

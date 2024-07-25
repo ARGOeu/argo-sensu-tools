@@ -48,6 +48,9 @@ class Config:
     def get_namespace(self):
         return self._read_entry("SENSU", "namespace")
 
+    def get_tenant(self):
+        return self._read_entry("SENSU", "tenant")
+
     def get_webapi_url(self):
         return self._remove_trailing_slash(self._read_entry("WEB-API", "url"))
 

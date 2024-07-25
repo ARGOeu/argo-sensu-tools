@@ -12,7 +12,8 @@ voname = ops\n
 [SENSU]\n
 url = https://sensu-devel.cro-ngi.hr:8080\n
 token = t0k3n\n
-namespace = TENANT\n
+namespace = tenant\n
+tenant = TENANT\n
 \n
 [WEB-API]\n
 url = https://api.devel.argo.grnet.gr\n
@@ -72,7 +73,10 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(self.config.get_sensu_token(), "t0k3n")
 
     def test_get_namespace(self):
-        self.assertEqual(self.config.get_namespace(), "TENANT")
+        self.assertEqual(self.config.get_namespace(), "tenant")
+
+    def test_get_tenant(self):
+        self.assertEqual(self.config.get_tenant(), "TENANT")
 
     def test_get_webapi_url(self):
         self.assertEqual(

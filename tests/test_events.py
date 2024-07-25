@@ -127,13 +127,188 @@ METRICPROFILES = [
 ]
 
 
+CHECKS = [
+    {
+        "command": "PASSIVE",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 0,
+        "low_flap_threshold": 0,
+        "publish": False,
+        "runtime_assets": None,
+        "subscriptions": [
+            "SRM__grid02.hep.by"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "eu.egi.SRM-VOLsDir",
+            "namespace": "tenant",
+            "labels": {
+                "tenants": "TENANT"
+            },
+            "annotations": {
+                "attempts": "4"
+            },
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    },
+    {
+        "command": "PASSIVE",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 0,
+        "low_flap_threshold": 0,
+        "publish": False,
+        "runtime_assets": None,
+        "subscriptions": [
+            "org.opensciencegrid.htcondorce__htc-atlas-ce02.na.infn.it",
+            "org.opensciencegrid.htcondorce__ifaece04.pic.es"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "ch.cern.HTCondorCE-JobSubmit",
+            "namespace": "tenant",
+            "labels": {
+                "tenants": "TENANT"
+            },
+            "annotations": {
+                "attempts": "2"
+            },
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    },
+    {
+        "command": "PASSIVE",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 0,
+        "low_flap_threshold": 0,
+        "publish": False,
+        "runtime_assets": None,
+        "subscriptions": [
+            "XRootD__xrootd.phy.bris.ac.uk"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "egi.xrootd.readwrite-Put",
+            "namespace": "tenant",
+            "labels": {
+                "tenants": "TENANT"
+            },
+            "annotations": {
+                "attempts": "3"
+            },
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    },
+    {
+        "command": "PASSIVE",
+        "handlers": [],
+        "high_flap_threshold": 0,
+        "interval": 0,
+        "low_flap_threshold": 0,
+        "publish": False,
+        "runtime_assets": None,
+        "subscriptions": [
+            "XRootD__xrootd.phy.bris.ac.uk"
+        ],
+        "proxy_entity_name": "",
+        "check_hooks": None,
+        "stdin": False,
+        "subdue": None,
+        "cron": "CRON_TZ=Europe/Zagreb 0 0 31 2 *",
+        "ttl": 0,
+        "timeout": 900,
+        "round_robin": False,
+        "output_metric_format": "",
+        "output_metric_handlers": None,
+        "env_vars": None,
+        "metadata": {
+            "name": "egi.xrootd.readwrite-Del",
+            "namespace": "tenant",
+            "labels": {
+                "tenants": "TENANT"
+            },
+            "annotations": {
+                "attempts": "3"
+            },
+            "created_by": "admin"
+        },
+        "secrets": None,
+        "pipelines": [
+            {
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }
+        ]
+    }
+]
+
+
 class Passive2EventTests(unittest.TestCase):
     def setUp(self):
         self.events = PassiveEvents(
             message=PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
 
     def test_parse(self):
@@ -151,8 +326,10 @@ class Passive2EventTests(unittest.TestCase):
         events = PassiveEvents(
             message=MULTILINE_PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -184,8 +361,10 @@ class Passive2EventTests(unittest.TestCase):
         events = PassiveEvents(
             message=WRONG_PASSIVE_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         with self.assertRaises(ArgoSensuToolsException) as context:
             events._parse()
@@ -199,8 +378,10 @@ class Passive2EventTests(unittest.TestCase):
         events = PassiveEvents(
             message=MULTIPLE_EVENTS_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -224,8 +405,10 @@ class Passive2EventTests(unittest.TestCase):
         events = PassiveEvents(
             message=MULTIPLE_MULTILINE_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         parsed_data = events._parse()
         self.assertEqual(
@@ -272,14 +455,23 @@ class Passive2EventTests(unittest.TestCase):
                 "entity_class": "proxy",
                 "metadata": {
                     "name": "SRM__grid02.hep.by",
-                    "namespace": "TEST"
+                    "namespace": "TEST",
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 }
             },
             "check": {
                 "output": "OK - Directory successfully listed",
                 "status": 0,
                 "metadata": {
-                    "name": "eu.egi.SRM-VOLsDir"
+                    "name": "eu.egi.SRM-VOLsDir",
+                    "annotations": {
+                        "attempts": "4"
+                    },
+                    "labels": {
+                        "tenants": "TENANT"
+                    }
                 },
                 "handlers": [],
                 "pipelines": [{
@@ -287,15 +479,22 @@ class Passive2EventTests(unittest.TestCase):
                     "type": "Pipeline",
                     "api_version": "core/v2"
                 }]
-            }
+            },
+            "pipelines": [{
+                "name": "hard_state",
+                "type": "Pipeline",
+                "api_version": "core/v2"
+            }]
         }])
 
     def test_create_events_for_multiple_parsed(self):
         passives = PassiveEvents(
             message=MULTIPLE_EVENTS_DATA,
             metricprofiles=METRICPROFILES,
+            checks=CHECKS,
             voname="ops",
-            namespace="TEST"
+            namespace="TEST",
+            tenant="TENANT"
         )
         events = passives.create_events()
         self.assertEqual(
@@ -304,14 +503,23 @@ class Passive2EventTests(unittest.TestCase):
                     "entity_class": "proxy",
                     "metadata": {
                         "name": "XRootD__xrootd.phy.bris.ac.uk",
-                        "namespace": "TEST"
+                        "namespace": "TEST",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     }
                 },
                 "check": {
                     "output": "WARNING - lsdir skipped",
                     "status": 1,
                     "metadata": {
-                        "name": "egi.xrootd.readwrite-Put"
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "name": "egi.xrootd.readwrite-Put",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     },
                     "handlers": [],
                     "pipelines": [{
@@ -319,20 +527,34 @@ class Passive2EventTests(unittest.TestCase):
                         "type": "Pipeline",
                         "api_version": "core/v2"
                     }]
-                }
+                },
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
             }, {
                 "entity": {
                     "entity_class": "proxy",
                     "metadata": {
                         "name": "XRootD__xrootd.phy.bris.ac.uk",
-                        "namespace": "TEST"
+                        "namespace": "TEST",
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     }
                 },
                 "check": {
                     "output": "WARNING - Del skipped",
                     "status": 1,
                     "metadata": {
-                        "name": "egi.xrootd.readwrite-Del"
+                        "name": "egi.xrootd.readwrite-Del",
+                        "annotations": {
+                            "attempts": "3"
+                        },
+                        "labels": {
+                            "tenants": "TENANT"
+                        }
                     },
                     "handlers": [],
                     "pipelines": [{
@@ -340,6 +562,11 @@ class Passive2EventTests(unittest.TestCase):
                         "type": "Pipeline",
                         "api_version": "core/v2"
                     }]
-                }
+                },
+                "pipelines": [{
+                    "name": "hard_state",
+                    "type": "Pipeline",
+                    "api_version": "core/v2"
+                }]
             }]
         )
